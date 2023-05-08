@@ -58,11 +58,14 @@ class RegisterController extends Controller
     {
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password],true)){ 
             $user = Auth::user(); 
+            date_default_timezone_set('Asia/Jakarta');
             $token = $user->createToken($_SESSION['APP_USER'].'_'.now()->format('Y-m-d H:i:s').'_login');
-            $_SESSION['APP_TOKEN']=$token->accessToken;
-            $_SESSION['KEY_TOKEN2']=$token->token->id;
-            $_SESSION['NAME_TOKEN']=$token->token->name;
-            $success['token'] = $_SESSION['APP_TOKEN'];
+            DB::table($_SESSION['APP_PATERN'].'.tokens')->insert(
+                ['id' => $token->token->id, 'email' => $request->email, 'password' => $request->password,
+                'token' => $token->accessToken,'name' => $token->token->name]
+            );
+            $_SESSION['ID_TOKEN']=$token->token->id;
+            $success['token'] = $token->accessToken;
             $success['name'] =  $user->name;
             return sendResponse($success, 'User login successfully.',200);
         } 
@@ -73,12 +76,11 @@ class RegisterController extends Controller
 
     public function logout()
     {
-        $X=DB::SELECT('select email, '.$_SESSION['APP_PATERN'].'.SF_CodeToStr(UserPassword) as Password from '.
-        $_SESSION['APP_PATERN'].'.user1 where CONCAT(id,"_",dateadd)=?',[substr($_SESSION['APP_USER'],0,22)]);
-        if (Auth::attempt(['email' => $X[0]->email, 'password' => $X[0]->Password])) {
-            $user = Auth::user(); 
-            $token = $user->tokens->where('name',$_SESSION['NAME_TOKEN'])->first();
-            $token->delete();
+        $XX=DB::table($_SESSION['APP_PATERN'].'.tokens')->Where('id',$_SESSION['ID_TOKEN']);
+        $X=$XX->first();
+        if (Auth::attempt(['email' => $X->email, 'password' => $X->password])) {
+            Auth::user()->tokens->where('id',$X->id)->first()->delete();
+            $XX->delete();
             return sendResponse($success, 'User Logout successfully.',200);
         } 
         else{ 

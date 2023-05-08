@@ -1,7 +1,5 @@
 <?php
-
 namespace App\__aaa\Controllers;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\db;
@@ -40,9 +38,15 @@ class User_Ctrl extends mstr_Controller
       parent::__construct();     
       $this->tbl_view = 'AAA::user_view';
    }   
-
-   protected function GetSelect() {
+   public function GetSelect() {
       return $this->model->get();
+    }
+
+
+   public function GetSelect2() {
+      return response()->json(['token'=>
+      '1a37242b9c315b0e6c9e480a364ffc3981a7f73cebb8e0ac215e20e13f212ebfeb3c3217642183f6'
+      ,'data'=>$this->model->get()]);
     }
 
    public function BeforeSave(Request $request) {

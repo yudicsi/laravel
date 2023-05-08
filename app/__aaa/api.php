@@ -22,21 +22,30 @@ Route::get('login', function() {
 });
 
 
-Route::get('User-1', [user_Ctrl::class, 'index']);
-Route::get('User', [user_Ctrl::class, 'index']);
-Route::get('user', [user_Ctrl::class, 'edit']);
-Route::post('user', [user_Ctrl::class, 'store']);
-Route::put('user', [user_Ctrl::class, 'update']);
-Route::delete('user', [user_Ctrl::class, 'destroy']);
-Route::get('logout', [RegisterController::class, 'logout']);
-Route::post('login', [RegisterController::class, 'login']);
+Route::get('/XXX', [function (Request $request) {
+  return redirect('~');
+  echo '<BR><BR><BR><BR><BR><BR><H1><CENTER>HTTP 404 Not Found</H1></CENTER>';
+  echo '<P><CENTER>The requested URL [URL] was not found on this server</CENTER></P>';
+//      return response()->json(['message' => 'Unauthorized.', 'code'=>401]);
+}]);
 
-
+Route::get('AA', function (Request $request) {
+  return 'COBA TULIS';
+});
 
 Route::middleware('user_accessible')->group(function () {
-//	Route::middleware('auth:api')->group(function () {
-  
-
+  //	Route::middleware('auth:api')->group(function () {
+  /*
+  Route::get('UserX', [user_Ctrl::class, 'GetSelect']);
+  */
+  Route::get('User-1', [user_Ctrl::class, 'index']);
+  Route::get('User', [user_Ctrl::class, 'index']);
+  Route::get('user', [user_Ctrl::class, 'edit']);
+  Route::post('user', [user_Ctrl::class, 'store']);
+  Route::put('user', [user_Ctrl::class, 'update']);
+  Route::delete('user', [user_Ctrl::class, 'destroy']);
+  Route::get('logout', [RegisterController::class, 'logout']);
+  Route::post('login', [RegisterController::class, 'login']);
 });
 
 
