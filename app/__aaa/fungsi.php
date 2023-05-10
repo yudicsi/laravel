@@ -5,6 +5,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\__aaa\Controllers\API\RegisterController;
 
+function IsToken($mode,Request $request) {
+  $result=$request->has('id_req');
+  if ($mode==1) return $result;
+  $ss=DB::table($_SESSION['APP_PATERN'].'.tokens')->where('req_id',$request->id_req)->first();
+  if ($mode==2) return $result && $ss;
+  return $result=$result && $ss->token==$request->token;
+}
+
+
 function UserLevel(Request $request)
 {
   try
@@ -12,6 +21,7 @@ function UserLevel(Request $request)
     $User = DB::table($_SESSION['APP_PATERN'] . '.User1')
     ->whereRaw('UserId=? and UserPassword=' . $_SESSION['APP_PATERN'] . '.SF_StrToCode(?)', [$request->name,$request->password]);
     if (!$User) return 0;
+    $_SESSION['USER_LVL']=$User->value('UserLevel');
     $request->merge(['email' => $User->value('email')]);
     Auth::attempt(['email' => $request->email, 'password' => $request->password]);
     $user = Auth::user(); 
@@ -21,7 +31,6 @@ function UserLevel(Request $request)
     '_'.$_SESSION['APP_NAME'].'_'.$_SESSION['APP_KDCAB'];
     $ss=(new RegisterController);
     $s=$ss->login($request);
-    $_SESSION['USER_LVL']=$User->value('UserLevel');
     $_SESSION['UserAdd']=$request->name;
     if ($s->getData()->message!=200) return 0;
     $request->session()->put($_SESSION['USER_LVL']);

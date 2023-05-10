@@ -60,12 +60,16 @@ class RegisterController extends Controller
             $user = Auth::user(); 
             date_default_timezone_set('Asia/Jakarta');
             $token = $user->createToken($_SESSION['APP_USER'].'_'.now()->format('Y-m-d H:i:s').'_login');
+            $ss=env('APP_NAME').'_'.num2rom(substr($_SERVER['REQUEST_TIME'],0,3)).'_'.
+            num2rom(substr($_SERVER['REQUEST_TIME'],3,3)).'_'.num2rom(substr($_SERVER['REQUEST_TIME'],6,3));
+            $tt=substr($token->accessToken,0,100);
             DB::table($_SESSION['APP_PATERN'].'.tokens')->insert(
                 ['id' => $token->token->id, 'email' => $request->email, 'password' => $request->password,
-                'token' => $token->accessToken,'name' => $token->token->name]
+                'token' => $tt,'name' => $token->token->name,'req_id'=>$ss]
             );
-            $_SESSION['ID_TOKEN']=$token->token->id;
-            $success['token'] = $token->accessToken;
+            $_SESSION['ID_REQ'] = $ss.'~~~'.$tt;
+            $success['id'] =  $ss;
+            $success['token'] =  $tt;
             $success['name'] =  $user->name;
             return sendResponse($success, 'User login successfully.',200);
         } 
