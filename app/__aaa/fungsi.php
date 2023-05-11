@@ -5,13 +5,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\__aaa\Controllers\API\RegisterController;
 
+function NotOKUser() {
+return (empty($_SESSION['APP_USER']) || empty($_SESSION['ID_REQ']));
+}
+
 function IsToken($mode,Request $request) {
   $result=$request->has('id_req');
   if ($mode==1) return $result;
   $ss=DB::table($_SESSION['APP_PATERN'].'.tokens')->where('req_id',$request->id_req)->first();
-  if ($mode==2) return $result && $ss;
-  return $result=$result && $ss->token==$request->token;
-}
+  $result=$result && $ss->id==$request->id;
+  if ($mode==2) return $result;
+  return $result && $ss->token==$request->token;
+} 
 
 
 function UserLevel(Request $request)

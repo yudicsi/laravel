@@ -62,15 +62,18 @@ class RegisterController extends Controller
             $token = $user->createToken($_SESSION['APP_USER'].'_'.now()->format('Y-m-d H:i:s').'_login');
             $ss=env('APP_NAME').'_'.num2rom(substr($_SERVER['REQUEST_TIME'],0,3)).'_'.
             num2rom(substr($_SERVER['REQUEST_TIME'],3,3)).'_'.num2rom(substr($_SERVER['REQUEST_TIME'],6,3));
+            $ss = substr(Hash::make($ss),0,100);
             $tt=substr($token->accessToken,0,100);
             DB::table($_SESSION['APP_PATERN'].'.tokens')->insert(
                 ['id' => $token->token->id, 'email' => $request->email, 'password' => $request->password,
                 'token' => $tt,'name' => $token->token->name,'req_id'=>$ss]
             );
-            $_SESSION['ID_REQ'] = $ss.'~~~'.$tt;
-            $success['id'] =  $ss;
+            $xx=DB::select('select id FROM '.$_SESSION['APP_PATERN'].'.tokens Where req_id=?',[$ss]);
+            $success['id'] = $xx[0]->id;
+            $success['id_rec'] =  $ss;
             $success['token'] =  $tt;
             $success['name'] =  $user->name;
+            $_SESSION['ID_REQ'] = $success['id'].'~~~'.$ss.'```'.$tt;
             return sendResponse($success, 'User login successfully.',200);
         } 
         else{ 
