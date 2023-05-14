@@ -13,13 +13,13 @@ class User_Ctrl extends mstr_Controller
 {
    function __construct()
    {
- //     $_SESSION['UserAdd']='CSI';
+ //     session('UserAdd')='CSI';
 //      $this->middleware('auth');
-      $_SESSION['Aplication']=$_SESSION['APP_PATERN'];
-      $this->file_db=$_SESSION['APP_PATERN'].'.user1';
-      $ss='Aplication, UserId, '.$_SESSION['APP_PATERN'].'.SF_CodeToStr(userpassword) as UserPassword,'.
+      $_SESSION['Aplication']=session('APP_PATERN');
+      $this->file_db=session('APP_PATERN').'.user1';
+      $ss='Aplication, UserId, '.session('APP_PATERN').'.SF_CodeToStr(userpassword) as UserPassword,'.
       'UserName, UserLevel,  email, UserAdd, DateAdd, UserEdit, DateEdit, id';
-      $this->model=DB::table($this->file_db)->selectRaw($ss)->where('Aplication',$_SESSION['APP_PATERN']);
+      $this->model=DB::table($this->file_db)->selectRaw($ss)->where('Aplication',session('APP_PATERN'));
       $this->primaryKey = 'id,DateAdd';
 
       $this->fillable = [
@@ -53,15 +53,19 @@ class User_Ctrl extends mstr_Controller
       $request->merge(['name' => $request->input('UserId')]);
       $request->merge(['password' => $request->input('UserPassword')]);
       date_default_timezone_set('Asia/Jakarta');
-      $_SESSION['DateEdit']=date("Y-m-d H:i:s");
+      $request->merge(['DateEdit' => date("Y-m-d H:i:s")]);
 }
 
    public function store(Request $request,$fieldContent='') {
       $this->BeforeSave($request);
       $result = parent::store($request);     
-      DB::unprepared('update '.$this->file_db.' set UserPassword='.$_SESSION['APP_PATERN'].'.SF_StrToCode("'.$request->input('UserPassword').'") '.
-      'where Aplication = "'.$_SESSION['APP_PATERN'].'" AND id='.$_SESSION[$this->file_db.'_id']);
-      $request->merge(['idx' => $_SESSION[$this->file_db.'_id'].'_'.$_SESSION['DateAdd']]);
+      DB::unprepared('update '.$this->file_db.' set UserPassword='.session('APP_PATERN').'.SF_StrToCode("'.$request->input('UserPassword').'") '.
+      'where Aplication = "'.session('APP_PATERN').'" AND id='.session($this->file_db.'_id'));
+
+      if ($s->getData()->message!=200) return 0;
+
+      
+      $request->merge(['idx' =>session($this->file_db.'_id').'_'.session('DateAdd')]);
       (new RegisterController)->register($request);
       return $result;
    }
@@ -70,8 +74,8 @@ class User_Ctrl extends mstr_Controller
    {
       $this->BeforeSave($request);
       $result = parent::update($request);     
-      DB::unprepared('update '.$this->file_db.' set UserPassword='.$_SESSION['APP_PATERN'].'.SF_StrToCode("'.$request->input('UserPassword').'") '.
-      'where Aplication = "'.$_SESSION['APP_PATERN'].'" AND id='.$request->input('~id').' AND DateAdd="'.$request->input('~DateAdd').'"');
+      DB::unprepared('update '.$this->file_db.' set UserPassword='.session('APP_PATERN').'.SF_StrToCode("'.$request->input('UserPassword').'") '.
+      'where Aplication = "'.session('APP_PATERN').'" AND id='.$request->input('~id').' AND DateAdd="'.$request->input('~DateAdd').'"');
       $ss=$request->input('~id').'_'.$request->input('~DateAdd');
       $request->merge(['idx' => $ss]);
       Auth::attempt(['email' => $request->email, 'password' => $request->password]);
@@ -79,7 +83,7 @@ class User_Ctrl extends mstr_Controller
       $ss=$request->only('idx','name', 'email', 'password');
       $ss['password']=Hash::make($ss['password']);
       if (!$user) {
-         $user=GetRecs($request,$_SESSION['APP_PATERN'].'.users','idx');
+         $user=GetRecs($request,session('APP_PATERN').'.users','idx');
          User::create($ss); 
          (new RegisterController)->register($request);}
       else {
@@ -94,7 +98,7 @@ class User_Ctrl extends mstr_Controller
       $affected=$this->GetRecords($request,$field);
       if ($First) {
          $affected = $affected->first();
-         $ss=DB::select('select '.$_SESSION['APP_PATERN'].'.SF_CodeToStr("'.$affected->UserPassword.'") as pwd');
+         $ss=DB::select('select '.session('APP_PATERN').'.SF_CodeToStr("'.$affected->UserPassword.'") as pwd');
          $affected->UserPassword=$ss[0]->pwd;
       }
       return Response()->json($affected);
@@ -103,7 +107,7 @@ class User_Ctrl extends mstr_Controller
    public function destroy(Request $request,$field='')
    {
       $result = parent::destroy($request);     
-      DB::table($_SESSION['APP_PATERN'].'.users')->where('remember_token', $request->input('id').'-'.str_replace('-','',substr($request->input('DateAdd'),2,8)))->delete();
+      DB::table(session('APP_PATERN').'.users')->where('remember_token', $request->input('id').'-'.str_replace('-','',substr($request->input('DateAdd'),2,8)))->delete();
       return $result;
    }
 

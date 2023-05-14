@@ -6,16 +6,18 @@ use Illuminate\Http\Request;
 use App\__aaa\Controllers\API\RegisterController;
 
 function NotOKUser() {
-return (empty($_SESSION['APP_USER']) || empty($_SESSION['ID_REQ']));
+return (empty(session('APP_USER')) || empty(session('ID_REQ')));
 }
 
 function IsToken($mode,Request $request) {
-  $result=$request->has('id_req');
-  if ($mode==1) return $result;
-  $ss=DB::table($_SESSION['APP_PATERN'].'.tokens')->where('req_id',$request->id_req)->first();
-  $result=$result && $ss->id==$request->id;
-  if ($mode==2) return $result;
-  return $result && $ss->token==$request->token;
+  if (!$request->has('key')) return false;
+  $s=$request->key;
+  $result=$s==session('ID_REQ');
+  if (!$result || $mode==1) return $result;
+  $i=strpos($s,'-');
+  $ss=DB::table(session('APP_PATERN').'.tokens')->where('idx',substr($s,0,$i))->first();
+  if (!$ss) return false;
+  return $s==$ss->idx.'-'.$ss->id.'~~'.$ss->req_id.'``'.$ss->token;
 } 
 
 
@@ -23,28 +25,26 @@ function UserLevel(Request $request)
 {
   try
   {
-    $User = DB::table($_SESSION['APP_PATERN'] . '.User1')
-    ->whereRaw('UserId=? and UserPassword=' . $_SESSION['APP_PATERN'] . '.SF_StrToCode(?)', [$request->name,$request->password]);
+    $User = DB::table(session('APP_PATERN') . '.User1')
+    ->whereRaw('UserId=? and UserPassword=' . session('APP_PATERN') . '.SF_StrToCode(?)', [$request->name,$request->password]);
     if (!$User) return 0;
-    $_SESSION['USER_LVL']=$User->value('UserLevel');
     $request->merge(['email' => $User->value('email')]);
     Auth::attempt(['email' => $request->email, 'password' => $request->password]);
     $user = Auth::user(); 
     if (!$user) return 0;
-    if (!$user->tokens->where('name', $user->idx.'_'.$user->name.'_'.$_SESSION['APP_NAME'].'_'.$_SESSION['APP_KDCAB'].'_register')->first()) return 0;
-    $_SESSION['APP_USER']=$user->idx.'_'.$user->name.'_'.gethostbyaddr($_SERVER['REMOTE_ADDR']).
-    '_'.$_SESSION['APP_NAME'].'_'.$_SESSION['APP_KDCAB'];
+    if (!$user->tokens->where('name', $user->idx.'_'.$user->name.'_'.session('APP_NAME').'_'.session('APP_KDCAB').'_register')->first()) return 0;
+    session(['APP_USER'=>$user->idx.'_'.$user->name.'_'.gethostbyaddr($_SERVER['REMOTE_ADDR']).'_'.session('APP_NAME').'_'.session('APP_KDCAB')]);
     $ss=(new RegisterController);
     $s=$ss->login($request);
-    $_SESSION['UserAdd']=$request->name;
-    if ($s->getData()->message!=200) return 0;
-    $request->session()->put($_SESSION['USER_LVL']);
+    session(['UserAdd'=>$request->name]);
+    if ($s->status()!=202) return 0;
+    session(['USER_LVL'=>$User->value('UserLevel')]);
     //$ss->logout();
     return $s;
   }
   catch(Throwable $e)
   {
-    $request->session()->put('USER_LVL',0);
+    session(['USER_LVL'=>0]);
   }
 }
 
@@ -209,11 +209,11 @@ function ToTableName($Trx = '', $prd = '', $Db = '') {
   $i=substr_count($Trx,'_');
   if (empty($prd)) {
     if ($i>0) {
-      if($ss=='_') $bln = substr($_SESSION['APP_PRD'], -2);
-      $YY = substr($_SESSION['APP_PRD'], 0, 4); 
-      if (empty($Dbx)) $Dbx = $_SESSION['APP_DB'];} 
+      if($ss=='_') $bln = substr(session('APP_PRD'), -2);
+      $YY = substr(session('APP_PRD'), 0, 4); 
+      if (empty($Dbx)) $Dbx = session('APP_DB');} 
     else {
-      if (empty($Dbx)) $Dbx=$_SESSION['APP_PATERN'];}}
+      if (empty($Dbx)) $Dbx=session('APP_PATERN');}}
   else {
     if (gettype($prd) == "string") {
       $bln = substr($prd, -2);
@@ -224,8 +224,8 @@ function ToTableName($Trx = '', $prd = '', $Db = '') {
     }
   }
   if (empty($Dbx)) {
-    $Dbx = $_SESSION['APP_PATERN'];    
-    if (!empty($YY)) $Dbx .= '_'.$_SESSION['APP_KDCAB'].$YY;
+    $Dbx = session('APP_PATERN');    
+    if (!empty($YY)) $Dbx .= '_'.session('APP_KDCAB').$YY;
   }
   if ($ss='_') $File .=$bln;
   return $Dbx . '.' . $File;
@@ -339,12 +339,12 @@ function testRegister(){
 }
 
 
-function sendResponse($data, $result, $message = '', $code = 200)
+function sendResponse($data, $code = 200, $message='', $result=-1)
 {
    $response = [
-        'success' => $result,
         'data'    => $data,
         'message' => $message,
+        'result' => $result,
     ];
     return response()->json($response, $code);
 }
