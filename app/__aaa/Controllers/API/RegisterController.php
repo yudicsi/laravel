@@ -16,7 +16,7 @@ class RegisterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function register(Request $request)
+    static public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -24,16 +24,14 @@ class RegisterController extends Controller
             'password' => 'required',
         ]);
 
-        if($validator->fails()){
-            return sendResponse($validator->errors(),false,'Validation Error, OK !!!',401);
-        }
+        if($validator->fails()) return sendResponse(401,'Validation Error, OK !!!','',$validator->errors());
         Auth::attempt(['email' => $request->email, 'password' => $request->password]);
         $user = Auth::user(); 
         if (!$user) {
             $input = $request->only('idx','name', 'email', 'password');
             $input['password'] = Hash::make($input['password']);
-            $user=GetRecs($request,session('APP_PATERN').'.users','idx');
-            if (!$user)  
+            $user=GetRecs($request,$_SESSION['APP_PATERN'].'.users','idx');
+            if (!$user || empty($user->count()))  
                User::create($input); 
             else 
                $user->update($input);
@@ -41,12 +39,11 @@ class RegisterController extends Controller
             Auth::attempt(['email' => $request->email, 'password' => $request->password]);
             $user = Auth::user(); 
         }
-        $ss=$user->idx.'_'.$user->name.'_'.session('APP_NAME').'_'.session('APP_KDCAB').'_register';
+        $ss=$user->idx.'_'.$user->name.'_'.$_SESSION['APP_NAME'].'_'.$_SESSION['APP_KDCAB'].'_register';
         if (! $token = $user->tokens->where('name', $ss)->first()) $token = $user->createToken($ss);
         $success['token'] = $token->accessToken;
-        $success['token2'] = $token->id;
         $success['name'] =  $user->name;
-        return sendResponse($success,200,'User register successfully.');
+        return sendResponse(200,'User register successfully.',$success);
     }
    
    /**
@@ -54,42 +51,42 @@ class RegisterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function login(Request $request)
+    static public function login(Request $request)
     {
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password],true)){ 
             $user = Auth::user(); 
             date_default_timezone_set('Asia/Jakarta');
-            $token = $user->createToken(session('APP_USER').'_'.now()->format('Y-m-d H:i:s').'_login');
+            $token = $user->createToken($_SESSION['APP_USER'].'_'.now()->format('Y-m-d H:i:s').'_login');
             $ss=env('APP_NAME').'_'.num2rom(substr($_SERVER['REQUEST_TIME'],0,3)).'_'.
             num2rom(substr($_SERVER['REQUEST_TIME'],3,3)).'_'.num2rom(substr($_SERVER['REQUEST_TIME'],6,3));
             $ss = substr(Hash::make($ss),-10);
             $tt=substr($token->accessToken,-10);
             $aa=substr($token->token->id,-10);
-            $result=DB::table(session('APP_PATERN').'.tokens')->insert(
+            $result=DB::table($_SESSION['APP_PATERN'].'.tokens')->insert(
             ['id' => $aa, 'email' => $request->email, 'password' => $request->password,
             'token' => $tt,'name' => $token->token->name,'req_id'=>$ss]);
             $Arr['id']=DB::select('select LAST_INSERT_ID() as idx')[0]->idx;
             $Arr['id_rec'] = $Arr['id'].'-'.$aa.'~~'.$ss.'``'.$tt;
             $Arr['name'] =  $user->name;
-            session(['ID_REQ' => $Arr['id_rec']]);
-            return sendResponse($Arr,202,'User login successfully.', $result);
+            $_SESSION['ID_REQ']=$Arr['id_rec'];
+            return sendResponse(202,'User login successfully.',$Arr,$result);
         } 
         else{ 
-            return sendResponse([],401,'Unauthorised User.'-1);
+            return sendResponse(401,'Unauthorised User.');
         } 
     }
 
-    public function logout()
+    static public function logout()
     {
-        $XX=DB::table(session('APP_PATERN').'.tokens')->Where('id',session('ID_TOKEN'));
+        $XX=DB::table($_SESSION['APP_PATERN'].'.tokens')->Where('id',$_SESSION['ID_TOKEN']);
         $X=$XX->first();
         if (Auth::attempt(['email' => $X->email, 'password' => $X->password])) {
             Auth::user()->tokens->where('id',$X->id)->first()->delete();
             $XX->delete();
-            return sendResponse($success, 'User Logout successfully.',200);
+            return sendResponse(200,'User Logout successfully.');
         } 
         else{ 
-            return sendResponse([],401,'Logout Fail');
+            return sendResponse(401,'Logout Fail');
         } 
     }
     

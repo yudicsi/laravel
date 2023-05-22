@@ -33,20 +33,24 @@ Route::get('AA', function (Request $request) {
   return 'COBA TULIS';
 });
 
+Route::get('user', function (Request $request) {
+  return (new User_Ctrl)->GetRecords($request,'','UserId,UserName,UserLevel,email');
+});
+Route::get('User-1', [user_Ctrl::class, 'index']);
+Route::get('User', [user_Ctrl::class, 'index']);
+Route::post('user', [user_Ctrl::class, 'store']);
+Route::put('user', [user_Ctrl::class, 'update']);
+Route::delete('user', [user_Ctrl::class, 'destroy']);
+Route::get('logout', [RegisterController::class, 'logout']);
+Route::post('login', [RegisterController::class, 'login']);
+
 Route::middleware('user_accessible')->group(function () {
   //	Route::middleware('auth:api')->group(function () {
   /*
   Route::get('UserX', [user_Ctrl::class, 'GetSelect']);
   */
-  Route::get('User-1', [user_Ctrl::class, 'index']);
-  Route::get('User', [user_Ctrl::class, 'index']);
-  Route::get('user', [user_Ctrl::class, 'edit']);
-  Route::post('user', [user_Ctrl::class, 'store']);
-  Route::put('user', [user_Ctrl::class, 'update']);
-  Route::delete('user', [user_Ctrl::class, 'destroy']);
-  Route::get('logout', [RegisterController::class, 'logout']);
-  Route::post('login', [RegisterController::class, 'login']);
-});
+  
+  });
 
 
 /*
