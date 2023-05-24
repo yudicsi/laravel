@@ -50,11 +50,21 @@ function IsToken($mode,$request) {
      if (!$request->has('key')) return false;
      $s=$request->key;
      $i=strpos($s,'-');
-     $ss=$s==$_SESSION['ID_REQ'];
-     if (!$ss || $mode==1) return $ss;
-     $ss=DB::table($_SESSION['APP_PATERN'].'.tokens')->where('idx',substr($s,0,$i))->first();
-     $t=$ss->idx.'-'.$ss->id.'~~'.$ss->req_id.'``'.$ss->token;
-     return $s==$t;}
+     if ($i>0) {
+        $ss=$s==$_SESSION['ID_REQ'];
+        if (!$ss || $mode==1) return $ss;
+        $aa=substr($s,0,$i);
+        $ss=DB::table($_SESSION['APP_PATERN'].'.tokens')->where('idx',$aa)->first();
+        $t=$ss->idx.'-'.$ss->id.'~~'.$ss->req_id.'``'.$ss->token;
+        return $s==$t;}
+     else {
+        $i=strpos($s,'>>');
+        if (!$i || $mode==1) return $i;
+        $aa=substr($request->key,$i+2);
+        $ss=DB::table($_SESSION['APP_PATERN'].'.tokens')->where('idx',$aa)->first();
+        $t=$ss->idx.'-'.$ss->id.'~~'.$ss->req_id.'``'.$ss->token;
+        return strpos($t,substr($request->key,0,$i));}
+     } 
   else {
     $s=$request;
     $ss=$s==substr($_SESSION['ID_REQ'],-20).'>>'.substr($_SESSION['ID_REQ'],0,strpos($_SESSION['ID_REQ'],'-'));
@@ -92,8 +102,8 @@ function UserLevel(Request $request)
     if (!$user->tokens->where('name', $user->idx.'_'.$user->name.'_'.$_SESSION['APP_NAME'].'_'.$_SESSION['APP_KDCAB'].'_register')->first()) return 0;
     $_SESSION['APP_USER']=$user->idx.'_'.$user->name.'_'.gethostbyaddr($_SERVER['REMOTE_ADDR']).'_'.$_SESSION['APP_NAME'].'_'.$_SESSION['APP_KDCAB'];
     $s=RegisterController::login($request);
-    $_SESSION['UserAdd']=$request->name;
     if ($s->status()!=202) return 0;
+    $_SESSION['UserAdd']=$request->name;
     $_SESSION['USER_LVL']=$User->value('UserLevel');
     //$ss->logout();
     return $s;

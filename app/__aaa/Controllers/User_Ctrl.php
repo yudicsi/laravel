@@ -95,10 +95,10 @@ class User_Ctrl extends mstr_Controller
          DB::beginTransaction();
          $ss = parent::destroy($request);     
          if (IsEmptyObj($ss)) return $ss;
-         /*$res=DeleteRecord($this->file_db, $this->primaryKey,request());
-         if (!$res) return sendResponse(422,'Terjadi Error saat hapus data, OK !!!','',$res);*/
-         $res=DB::table($_SESSION['APP_PATERN'].'.users')->where('idx', $request->id.'_'.$request->DateAdd)->delete();
-         if (!$res) return sendResponse(422,'Terjadi Error saat hapus data, OK !!!','',$res);
+         $res=DB::table($_SESSION['APP_PATERN'].'.users')->where('idx', $request->id.'_'.$request->DateAdd);
+         if ($res && $res->count()>0) { 
+            if (!$res->delete()) return sendResponse(422,'Terjadi Error saat hapus data, OK !!!','',$res);
+         }
          DB::commit();
          return sendResponse(200,'Data telah dihapus, OK !!!','',$res,'UserId,UserName,UserLevel,email');}
       catch(\Exception $e){
