@@ -1,6 +1,5 @@
 <?php
 namespace App\__aaa\Controllers;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\db;
 use App\__aaa\Controllers\mstr_Controller;
@@ -17,7 +16,6 @@ class User_Ctrl extends mstr_Controller
 //      $this->middleware('auth');
       //$_SESSION['UserAdd']='CSI';
       $_SESSION['Aplication']=$_SESSION['APP_PATERN'];
-      if (!empty($_GET['key'])) $_SESSION['key']=$_GET['key'];
       $this->file_db=$_SESSION['APP_PATERN'].'.user1';
       $ss='Aplication, UserId, '.$_SESSION['APP_PATERN'].'.SF_CodeToStr(userpassword) as UserPassword,'.
       'UserName, UserLevel,  email, UserAdd, DateAdd, UserEdit, DateEdit, id';
@@ -48,9 +46,6 @@ class User_Ctrl extends mstr_Controller
       $request->merge(['DateEdit' => date("Y-m-d H:i:s")]);
 }
 
-   public function GetSelect() {
-      return $this->model->get();
-    }
 
    public function store(Request $request,$fieldContent='') {
       $this->BeforeSave($request);

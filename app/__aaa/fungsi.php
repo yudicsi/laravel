@@ -29,6 +29,31 @@ function fiel2arr($field,$model) {
   return $arr_field;
 }
 
+function objectToArray($data) {
+  // If the element being looked is an object convert to an array
+  if(is_object($data)) {
+    $data = get_object_vars($data);
+  }
+  // If the element is an array, iterate though it and call the function again on each item
+  if(is_array($data)) {
+      foreach($data as $key=>$value){
+          $data[$key] = objectToArray($value);
+      }
+  }
+  return $data;
+}
+
+function convertToObject($array) {
+  $object = new stdClass();
+  foreach ($array as $key => $value) {
+      if (is_array($value)) {
+          $value = convertToObject($value);
+      }
+      $object->$key = $value;
+  }
+  return $object;
+}
+
 function IsEmptyObj($ss) {
   if (gettype($ss)!="object")
      return empty($ss);
