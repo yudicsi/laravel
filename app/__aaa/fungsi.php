@@ -434,7 +434,7 @@ function GetRecs(Request $request,$file_db,$field='')
          if (is_null($aa) && array_key_exists($value, $_SESSION)) $aa=$_SESSION[$value];
          if (!is_null($aa)) array_push($arr_field,array(Str::afterLast($value, '~'),$aa));
       }
-      if (!$arr_field) return null;
+      if (!$arr_field) return $file_db;
       if ($file_db instanceof \Illuminate\Database\Eloquent\Model) 
          $affected = $file_db->where($arr_field);
       else {

@@ -5,21 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\__aaa\Controllers\User_Ctrl;
 use App\__aaa\Controllers\mstr_Controller;
-use App\__stock\Controllers\Langg_Ctrl;
+use App\__stock\Controllers\cust_Ctrl;
+use App\__stock\Controllers\suppl_Ctrl;
 
-class suppl_Ctrl extends Langg_Ctrl
-{
-   function __construct() {
-      parent::__construct(env('APP_NAME').'.supplier');     
-   }   
-}
 
-class cust_Ctrl extends Langg_Ctrl
-{
-   function __construct() {
-      parent::__construct(env('APP_NAME').'.Customer');     
-   }   
-}
 
 class grup_Ctrl extends mstr_Controller
 {
@@ -55,7 +44,6 @@ class disp_Ctrl extends mstr_Controller
 Route::get('login', function() {
     return response()->json(['message' => 'Unauthorized.'], 401);
 });
-
 
 Route::get('/XXX', [function (Request $request) {
   return redirect('~');
