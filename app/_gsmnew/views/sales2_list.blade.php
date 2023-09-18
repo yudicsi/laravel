@@ -1,0 +1,22 @@
+columns: [
+  {data: 'action',name: 'action',orderable: false},
+  {data: 'UserId', name: 'UserId'},       
+  {data: 'UserName', name: 'UserName'},       
+  {data: 'KdSupl', name: 'KdSupl'},       
+  {data: 'UserAdd', name: 'UserAdd'},       
+  {data: 'DateAdd', name: 'DateAdd'},       
+  {data: 'UserEdit', name: 'UserEdit'},      
+  {data: 'DateEdit', name: 'DateEdit'},      
+  {data: 'id', name: 'id'},       
+  ],       
+order: [[1, 'desc']],
+columnDefs: [
+  {target: 0,width: 120,searchable: false},
+  {targets: [1,4,6], width:12},
+  {target: 2,width: 30}, 
+  {target: 3,width: 15}, 
+  {targets: [5,7], width:16, type:  'datetime', format: 'D MMM YYYY HH:mm'},
+  {target: 8, visible: false, searchable: false},    
+  {targets: [0,1,3,4,5,6,7,8], className: 'dt-center'}, 
+  {targets: [0,1,3,4,5,6,7,8], className: 'dt-head-center'}, 
+  ]

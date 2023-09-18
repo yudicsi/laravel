@@ -1,0 +1,21 @@
+{
+    "name": "GSM SWALAYAN BAROKAH",
+    "catalog" : "gsmnew",
+    "branch" : { "mgr" :
+       {"kdcab":"MGR",
+        "nmcab":"MAGERSARI",
+        "host":"localhost",
+        "port" : 3306,
+        "userdb" : "root",
+        "pwddb" : "",
+        "flagdb" : ""},
+        "wny" :
+       {"kdcab":"WNY",
+        "nmcab":"WONOAYU",
+        "host":"localhost",
+        "port" : 3350,
+        "userdb" : "root",
+        "pwddb" : "csi",
+        "flagdb" : ""}}
+       }
+ 

@@ -5,39 +5,27 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\__aaa\Controllers\User_Ctrl;
 use App\__aaa\Controllers\mstr_Controller;
-use App\__stock\Controllers\cust_Ctrl;
-use App\__stock\Controllers\suppl_Ctrl;
-
+use App\__stock\Controllers\disp_Ctrl;
+use vendor\mobiledetect\mobiledetectlib\src\MobileDetect;
 
 
 class grup_Ctrl extends mstr_Controller
 {
-   function __construct() {
-      parent::__construct($_SESSION['APP_PATERN'].'.group1','grup','GROUP','STOCK::');     
-   }   
+  function __construct() {
+    parent::__construct($_SESSION['APP_PATERN'].'.group1','grup','GROUP','STOCK::');     
+    $detect = new Detection\MobileDetect;
+    $this->scrollX = $detect->isMobile(); 
+  }
 }
+
+
 class rak_Ctrl extends mstr_Controller
 {
-   function __construct() {
-      parent::__construct(env('APP_NAME').'.rak','grup','RAK','STOCK::');     
-   }   
-}
-class disp_Ctrl extends mstr_Controller
-{
-   function __construct() {
-      parent::__construct($_SESSION['APP_PATERN'].'.display','disp','DISPLAY','STOCK::');     
-   }   
-   public function store(Request $request,$fieldContent='') {
-    $result = parent::store($request);     
-    if (IsEmptyObj($result)) return $result;
-    $id=DB::select('select LAST_INSERT_ID() as idx')[0]->idx;
-    $getdata=$result->getdata();
-    $arr=objectToArray($getdata->data);
-    $arr['Kode']=$id;
-    $getdata->data=json_decode(json_encode($arr));
-    $result->setdata($getdata);
-    return $result;
-   }
+  function __construct() {
+    parent::__construct(env('APP_NAME').'.rak','grup','RAK','STOCK::');     
+    $detect = new Detection\MobileDetect;
+    $this->scrollX = $detect->isMobile(); 
+  }   
 }
 
 
@@ -91,34 +79,34 @@ Route::middleware('user_accessible')->group(function () {
   Route::put('rak', [rak_Ctrl::class, 'update']);
   Route::delete('rak', [rak_Ctrl::class, 'destroy']);
 
-  Route::get('disp', function (Request $request) {
+  Route::get('display', function (Request $request) {
     return (new disp_Ctrl)->GetRecords($request,'','Kode,Nama');
   });
-  Route::get('Disp-1', [disp_Ctrl::class, 'index']);
-  Route::get('Disp', [disp_Ctrl::class, 'index']);
-  Route::post('disp', [disp_Ctrl::class, 'store']);
-  Route::put('disp', [disp_Ctrl::class, 'update']);
-  Route::delete('disp', [disp_Ctrl::class, 'destroy']);
+  Route::get('Display-1', [disp_Ctrl::class, 'index']);
+  Route::get('Display', [disp_Ctrl::class, 'index']);
+  Route::post('display', [disp_Ctrl::class, 'store']);
+  Route::put('display', [disp_Ctrl::class, 'update']);
+  Route::delete('display', [disp_Ctrl::class, 'destroy']);
 
-  Route::get('suppl', function (Request $request) {
+  Route::get('supplier', function (Request $request) {
     $sup=new suppl_Ctrl;
     return $sup->GetRecords($request,'',$sup->fillable,true,$sup->file_db);
   });
-  Route::get('Suppl-1', [suppl_Ctrl::class, 'index']);
-  Route::get('Suppl', [suppl_Ctrl::class, 'index']);
-  Route::post('suppl', [suppl_Ctrl::class, 'store']);
-  Route::put('suppl', [suppl_Ctrl::class, 'update']);
-  Route::delete('suppl', [suppl_Ctrl::class, 'destroy']);
+  Route::get('Supplier-1', [suppl_Ctrl::class, 'index']);
+  Route::get('Supplier', [suppl_Ctrl::class, 'index']);
+  Route::post('supplier', [suppl_Ctrl::class, 'store']);
+  Route::put('supplier', [suppl_Ctrl::class, 'update']);
+  Route::delete('supplier', [suppl_Ctrl::class, 'destroy']);
   
-  Route::get('cust', function (Request $request) {
+  Route::get('customer', function (Request $request) {
     $sup=new cust_Ctrl;
     return $sup->GetRecords($request,'',$sup->fillable,true,$sup->file_db);
   });
-  Route::get('Cust-1', [cust_Ctrl::class, 'index']);
-  Route::get('Cust', [cust_Ctrl::class, 'index']);
-  Route::post('cust', [cust_Ctrl::class, 'store']);
-  Route::put('cust', [cust_Ctrl::class, 'update']);
-  Route::delete('cust', [cust_Ctrl::class, 'destroy']);
+  Route::get('Customer-1', [cust_Ctrl::class, 'index']);
+  Route::get('Customer', [cust_Ctrl::class, 'index']);
+  Route::post('customer', [cust_Ctrl::class, 'store']);
+  Route::put('customer', [cust_Ctrl::class, 'update']);
+  Route::delete('cucustomerst', [cust_Ctrl::class, 'destroy']);
   
 
 

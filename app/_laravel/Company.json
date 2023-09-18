@@ -1,0 +1,13 @@
+{
+    "name": "LARAVEL",
+    "catalog" : "laravel",
+    "branch" : { "test" :
+       {"kdcab":"test",
+        "nmcab":"LARAVEL TEST",
+        "host":"localhost",
+        "port" : 3306,
+        "userdb" : "root",
+        "pwddb" : "",
+        "flagdb" : ""}
+       }
+ }

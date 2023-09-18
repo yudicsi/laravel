@@ -20,7 +20,7 @@ class User_Ctrl extends mstr_Controller
       $ss='Aplication, UserId, '.$_SESSION['APP_PATERN'].'.SF_CodeToStr(userpassword) as UserPassword,'.
       'UserName, UserLevel,  email, UserAdd, DateAdd, UserEdit, DateEdit, id';
       $this->model=DB::table($this->file_db)->selectRaw($ss)->where('Aplication',$_SESSION['APP_PATERN']);
-      $this->primaryKey = 'id,DateAdd';
+      $this->primaryKey = 'UserId,DateAdd';
 
       $this->fillable = [
          'Aplication',
@@ -35,10 +35,10 @@ class User_Ctrl extends mstr_Controller
          'DateEdit',
          'id',
          ];
-      parent::__construct();     
-      $this->tbl_view = 'AAA::user_view';
+      parent::__construct('','','','AAA::');     
    }   
 
+   
    public function BeforeSave(Request $request) {
       $request->merge(['name' => $request->input('UserId')]);
       $request->merge(['password' => $request->input('UserPassword')]);
@@ -66,8 +66,8 @@ class User_Ctrl extends mstr_Controller
       $result=parent::update($request);     
       if (IsEmptyObj($result)) return $result;
       DB::unprepared('update '.$this->file_db.' set UserPassword='.$_SESSION['APP_PATERN'].'.SF_StrToCode("'.$request->input('UserPassword').'") '.
-      'where Aplication = "'.$_SESSION['APP_PATERN'].'" AND id='.$request->input('~id').' AND DateAdd="'.$request->input('~DateAdd').'"');
-      $ss=$request->input('~id').'_'.$request->input('~DateAdd');
+      'where Aplication = "'.$_SESSION['APP_PATERN'].'" AND id='.$request->input('id').' AND DateAdd="'.$request->input('~DateAdd').'"');
+      $ss=$request->input('id').'_'.$request->input('~DateAdd');
       $request->merge(['idx' => $ss]);
       Auth::attempt(['email' => $request->email, 'password' => $request->password]);
       $user = Auth::user(); 

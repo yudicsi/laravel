@@ -1,0 +1,13 @@
+{
+    "name": "SD MUHAMMADIYAH 2",
+    "catalog" : "sdamada",
+    "branch" : { "sda" :
+       {"kdcab":"SDA",
+        "nmcab":"SDAMADA",
+        "host":"localhost",
+        "port" : 3306,
+        "userdb" : "root",
+        "pwddb" : "",
+        "flagdb" : ""}
+       }
+ }

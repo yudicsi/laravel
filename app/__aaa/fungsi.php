@@ -3,7 +3,25 @@ use Illuminate\Support\Facades\db;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\__aaa\Controllers\API\RegisterController;
+use App\__stock\Controllers\Langg_Ctrl;
+
+
+class suppl_Ctrl extends Langg_Ctrl
+{
+   function __construct() {
+      parent::__construct(env('APP_NAME').'.supplier');     
+   }   
+}
+
+
+class cust_Ctrl extends Langg_Ctrl
+{
+   function __construct() {
+      parent::__construct(env('APP_NAME').'.Customer');     
+   }   
+}
 
 function NotOKUser() {
 return (empty($_SESSION['APP_USER']) || empty($_SESSION['ID_REQ']));
@@ -545,4 +563,38 @@ function rom2num($roman){
       }
   }
   return $result;
+}
+
+function ViewName($Lname,$ViewName,$tbl_view='',$tbl_File='',$dir_view='') {
+  if (empty($tbl_view)) $$tbl_view=$ViewName;
+  if (empty($dir_view)) $$tbl_view=$ViewName;
+  $PreName = Str::afterLast($tbl_view,'::');
+  if ($Lname=='table') {
+    $i=strpos($ViewName,'_');
+    if ($i>=0) $PreName.=substr($ViewName,$i);
+  }  
+  if (file_exists($_SESSION['APP_DIR'].'\\views\\'.$ViewName.'_'.$Lname.'.blade.php')) 
+    {$list_file='PATERN::'.$ViewName.'_'.$Lname;}
+  elseif (file_exists(app_path().'\\__stock\\views\\'.$ViewName.'_'.$Lname.'.blade.php')) 
+    {$list_file='STOCK::'.$ViewName.'_'.$Lname;}
+  elseif (file_exists(app_path().'\\__aaa\\views\\'.$ViewName.'_'.$Lname.'.blade.php')) 
+    {$list_file='AAA::'.$ViewName.'_'.$Lname;}
+  elseif (file_exists($_SESSION['APP_DIR'].'\\views\\'.$PreName.'_'.$Lname.'.blade.php')) 
+    {$list_file='PATERN::'.$PreName.'_'.$Lname;}
+  elseif (file_exists(app_path().'\\__stock\\views\\'.$PreName.'_'.$Lname.'.blade.php')) 
+    {$list_file='STOCK::'.$PreName.'_'.$Lname;}
+  elseif (file_exists(app_path().'\\__aaa\\views\\'.$PreName.'_'.$Lname.'.blade.php')) 
+    {$list_file='AAA::'.$PreName.'_'.$Lname;}
+  else {
+    $PreName=substr($tbl_File,0,strpos($tbl_File,'_'));
+    if (file_exists($_SESSION['APP_DIR'].'\\views\\'.$PreName.'_'.$Lname.'.blade.php')) 
+        {$list_file='PATERN::'.$PreName.'_'.$Lname;}
+    elseif (file_exists(app_path().'\\__stock\\views\\'.$PreName.'_'.$Lname.'.blade.php')) 
+        {$list_file='STOCK::'.$PreName.'_'.$Lname;}
+    elseif (file_exists(app_path().'\\__aaa\\views\\'.$PreName.'_'.$Lname.'.blade.php')) 
+        {$list_file='AAA::'.$PreName.'_'.$Lname;}
+    else
+        {$list_file=$dir_view.$PreName.'_'.$Lname;}
+  } 	
+  return $list_file;
 }
